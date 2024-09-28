@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Visualización Didáctica de la Molécula de Fructosa</title>
+    <!-- Incluir A-Frame -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <!-- Incluir A-Frame Extras para efectos de partículas -->
+    <script src="https://unpkg.com/aframe-extras@6.1.0/dist/aframe-extras.min.js"></script>
+    <!-- Incluir Speech Synthesis API para audio narrativo -->
+    <script>
+      function narrar(texto) {
+        const speech = new SpeechSynthesisUtterance(texto);
+        speech.lang = "es-ES";
+        window.speechSynthesis.speak(speech);
+      }
+    </script>
+    <!-- Música de fondo -->
+    <audio id="background-music" loop>
+      <source src="ruta_de_musica_calma.mp3" type="audio/mp3">
+    </audio>
+  </head>
+
+  <body>
+    <!-- Escena A-Frame -->
+    <a-scene background="color: #000000" vr-mode-ui="enabled: true">
+      <!-- Fondo espacial para una experiencia inmersiva -->
+      <a-sky color="#000"></a-sky>
+
+      <!-- Texto que dice "Fructosa" encima del modelo -->
+      <a-text value="Fructosa - C6H12O6" color="#FFFFFF" position="0 3 -5" align="center" scale="3 3 3"></a-text>
+
+      <!-- Modelo de la molécula de fructosa con texturas avanzadas -->
+      <a-entity id="fructosa" obj-model="obj: #fructosa-obj; mtl: #fructosa-mtl" position="0 1.5 -5" scale="0.2 0.2 0.2"></a-entity>
+
+      <!-- Efectos de partículas simulando átomos -->
+      <a-entity particle-system="preset: dust; color: #ff0000, #00ff00; particleCount: 200" position="0 2 -5"></a-entity>
+
+      <!-- Definir los assets (archivos) -->
+      <a-assets>
+        <a-asset-item id="fructosa-obj" src="fructosa.obj"></a-asset-item>
+        <a-asset-item id="fructosa-mtl" src="fructosa.mtl"></a-asset-item>
+      </a-assets>
+
+      <!-- Añadir luces mejoradas para destacar detalles -->
+      <a-light type="ambient" color="#ffffff" intensity="0.3"></a-light>
+      <a-light type="point" intensity="1.5" position="2 4 -3" distance="15"></a-light>
+
+      <!-- Añadir cámara con controles VR -->
+      <a-camera id="camera" position="0 1.6 0" wasd-controls-enabled="false" look-controls="enabled: true">
+        <a-cursor></a-cursor>
+      </a-camera>
+
+      <!-- Instrucciones interactivas -->
+      <a-text value="Mueve el teléfono para interactuar con la molécula." color="#FFFFFF" position="0 0.8 -3" align="center" scale="1.5 1.5 1.5"></a-text>
+
+      <!-- Script para controlar la interacción basada en movimiento -->
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const fructosa = document.querySelector('#fructosa');
+          const music = document.getElementById('background-music');
+          let rotationSpeed = 0.5;
+          let scale = 0.2; // Escala inicial de la molécula
+
+          // Narrar la introducción
+          narrar("Bienvenidos a la experiencia de aprendizaje de la molécula de fructosa. Usa el movimiento del dispositivo para interactuar.");
+
+          // Reproducir música de fondo
+          music.play();
+
+          // Controlar el movimiento basado en el giro del dispositivo
+          window.addEventListener('deviceorientation', (event) => {
+            let alpha = event.alpha;  // Rotación alrededor del eje Z
+            let beta = event.beta;    // Inclinación alrededor del eje X
+            let gamma = event.gamma;  // Inclinación alrededor del eje Y
+
+            // Rotar la molécula según el movimiento del dispositivo
+            fructosa.setAttribute('rotation', {
+              x: beta - 90, // Ajustar el ángulo para una mejor experiencia
+              y: alpha,
+              z: gamma
+            });
+          });
+
+          // Animación de zoom basada en la inclinación (beta)
+          function adjustScale(beta) {
+            let delta = (beta - 90) * 0.001; // Ajuste de la escala según el ángulo
+            scale += delta;
+            if (scale < 0.05) scale = 0.05; // Límite inferior
+            if (scale > 1) scale = 1; // Límite superior
+            fructosa.setAttribute('scale', `${scale} ${scale} ${scale}`);
+          }
+
+          // Detectar cambios en el ángulo beta y ajustar el zoom
+          window.addEventListener('deviceorientation', (event) => {
+            adjustScale(event.beta);
+          });
+        });
+      </script>
+    </a-scene>
+  </body>
+</html>
